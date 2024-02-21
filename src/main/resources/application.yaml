@@ -1,0 +1,9 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: jdbc:mysql://120.55.74.105:3306/diudiu?useSSL=false&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: cg19950523
+    driver-class-name: com.mysql.jdbc.Driver
+

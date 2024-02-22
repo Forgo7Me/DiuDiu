@@ -149,10 +149,6 @@ export default {
         if (response.data.code === "SUCCESS") {
           this.fixLogs = response.data.data;
           this.filterFixLogs = this.fixLogs;
-          Notification({
-            title: "获取报修信息成功",
-            type: "success"
-          });
         } else if (response.data.code === "ERROR") {
           Notification({
             title: "获取报修信息失败",

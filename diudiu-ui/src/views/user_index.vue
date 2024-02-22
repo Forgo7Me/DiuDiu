@@ -118,10 +118,6 @@ export default {
       findUserById(this.user).then(response => {
         if (response.data.code === "SUCCESS") {
           this.user = response.data.data;
-          Notification({
-            title: "获取用户信息成功",
-            type: "success"
-          });
         } else if (response.data.code === "ERROR") {
           Notification({
             title: "获取用户信息失败",

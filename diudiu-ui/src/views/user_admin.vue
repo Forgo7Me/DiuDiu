@@ -49,9 +49,15 @@
       </el-descriptions>
       <!--      下方加上三个均匀分布的el按钮，分别为"报修","联系","投诉"-->
       <div class="button">
-        <el-button type="primary" @click="visible.fixVisible = true" class = "fun-button">报修</el-button>
-        <el-button type="success" class = "fun-button">联系</el-button>
-        <el-button type="danger" class = "fun-button">投诉</el-button>
+        <el-button type="primary" @click="visible.fixVisible = true" class="fun-button">报修</el-button>
+        <el-button type="success" @click="toUserChat" class="fun-button">
+          <template>
+<!--            若unCheckMessageCount不为0则在左边加上一个danger的el-tag显示未读消息数，若为0则仅显示文字"联系"-->
+            <el-tag v-if="unCheckMessageCount !== 0" type="danger" class="unCheckMessage">{{ unCheckMessageCount }}</el-tag>
+            联系
+          </template>
+        </el-button>
+        <el-button type="danger" class="fun-button">投诉</el-button>
       </div>
       <!--      报修面板，使用el-dialog嵌套form,放入一个输入框，提示“请详细输入报修内容”，下方放置“确定”和“取消”按钮，确定按钮绑定"addFixLog"方法，取消让el-dialog再次隐藏-->
       <el-dialog title="报修" :visible.sync="visible.fixVisible">
@@ -75,7 +81,7 @@
 <script>
 import user_left from "@/components/user_left.vue";
 import {Notification} from "element-ui";
-import {findAdmin,addFixLog} from "@/api/user_api";
+import {findAdmin, addFixLog,getUncheckedMessageCount} from "@/api/user_api";
 
 export default {
   components: {
@@ -93,21 +99,27 @@ export default {
       fixLog: {
         description: "",
       },
+      unCheckMessageCount: 1,
     }
   },
   created() {
+
+    // 让getUncheckedMessageCount方法在findAdmin方法之后执行，确保能获取到admin.id
     this.findAdmin();
+  },
+  watch: {
+    admin: {
+      handler: function (val, oldVal) {
+        this.getUncheckedMessageCount();
+      },
+      deep: true
+    }
   },
   methods: {
     findAdmin() {
-
       findAdmin(this.user).then(response => {
         if (response.data.code === "SUCCESS") {
           this.admin = response.data.data;
-          Notification({
-            title: "获取用户信息成功",
-            type: "success"
-          });
         } else if (response.data.code === "ERROR") {
           Notification({
             title: "获取用户信息失败",
@@ -121,7 +133,7 @@ export default {
         }
       });
     },
-    addFixLog(){
+    addFixLog() {
       const param = {
         userId: this.user.userId,
         description: this.fixLog.description,
@@ -146,8 +158,41 @@ export default {
           });
         }
       });
+    },
+    toUserChat() {
+      localStorage.setItem("accepterId", this.admin.id)
+      localStorage.setItem("accepterIdentity", "管理员")
+      this.$router.push({
+        name: "user_chat",
+        params: {
+          accepterId: this.admin.id,
+          accepterIdentity: "管理员"
+        }
+    });
+    },
+    getUncheckedMessageCount(){
+      const param = {
+        senderId: this.user.userId,
+        senderIdentity: "用户",
+        accepterId: this.admin.id,
+        accepterIdentity: "管理员"
+      }
+      getUncheckedMessageCount(param).then(response => {
+        if (response.data.code === "SUCCESS") {
+          this.unCheckMessageCount = response.data.data;
+        } else if (response.data.code === "ERROR") {
+          Notification({
+            title: "获取未读消息数失败",
+            type: "error"
+          });
+        } else if (response.data.code === "TIMEOUT") {
+          Notification({
+            title: "登录信息已过期，请重新登录",
+            type: "warning"
+          });
+        }
+      });
     }
-
 
 
   },
@@ -199,6 +244,9 @@ export default {
   width: 300px;
   height: 75px;
   border-radius: 125px;
+}
+.unCheckMessage{
+  border-radius: 50%;
 }
 
 </style>

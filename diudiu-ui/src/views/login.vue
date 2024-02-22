@@ -5,10 +5,9 @@
         <form>
           <h2 class="title">管理员登录</h2>
           <span class="text">欢迎回来</span>
-          <input class="form__input" type="text" placeholder="Name"/>
-          <input class="form__input" type="text" placeholder="Email"/>
-          <input class="form__input" type="password" placeholder="Password"/>
-          <div class="primary-btn">立即登录</div>
+          <input class="form__input" v-model="login.username" type="text" placeholder="账号"/>
+          <input class="form__input" v-model="login.password" type="password" placeholder="密码"/>
+          <div class="primary-btn" @click="login">立即登录</div>
         </form>
       </div>
       <div
@@ -17,16 +16,16 @@
         <form>
           <h2 class="title">学生登录</h2>
           <span class="text">or use email for registration</span>
-          <input class="form__input" type="text" placeholder="Email"/>
-          <input class="form__input" type="password" placeholder="Password"/>
-          <div class="primary-btn">立即登录</div>
+          <input class="form__input" v-model="login.username" type="text" placeholder="账号"/>
+          <input class="form__input" v-model="login.password" type="password" placeholder="密码"/>
+          <div class="primary-btn" @click="login">立即登录</div>
         </form>
       </div>
       <div :class="['switch', { login: isLogin }]">
         <div class="switch__circle"></div>
         <div class="switch__circle switch__circle_top"></div>
         <div class="switch__container">
-          <h2>{{ isLogin ? "Hello Friend !" : "Welcome Back !" }}</h2>
+          <h2>{{ isLogin ? "DiuDiu !" : "Diu Diu!" }}</h2>
           <p>
             {{
               isLogin
@@ -35,7 +34,7 @@
             }}
           </p>
           <div class="primary-btn" @click="isLogin = !isLogin">
-            {{ isLogin ? "立即注册" : "立即登录" }}
+            {{ isLogin ? "管理员登录" : "学生登录" }}
           </div>
         </div>
       </div>
@@ -44,11 +43,13 @@
 </template>
 
 <script>
+import {Notification} from "element-ui";
+import {login} from "@/api/user_api";
 export default {
   name: "LoginBox",
   data() {
     return {
-      isLogin: false,
+      isLogin: true,
       loginForm: {
         email: "",
         password: "",
@@ -58,12 +59,40 @@ export default {
         email: "",
         password: "",
       },
+      identity:""
     };
   },
   methods: {
     login() {
-    },
-    register() {
+      if(this.isLogin){
+        this.identity = "学生"
+      }else{
+        this.identity = "管理员"
+      }
+      const param = {
+        identity : this.identity,
+        username: this.login.username,
+        password: this.login.password,
+      }
+      login(param).then(response => {
+        if (response.data.code === "SUCCESS") {
+          Notification({
+            title: "登录成功",
+            type: "success"
+          });
+          localStorage.setItem("token", response.data.data);
+          if(this.isLogin) {
+            this.$router.push("/user_index");
+          }else{
+            this.$router.push("/admin_index");
+          }
+        } else if (response.data.code === "ERROR") {
+          Notification({
+            title: "登录失败",
+            type: "error"
+          });
+        }
+      });
     },
   },
 };

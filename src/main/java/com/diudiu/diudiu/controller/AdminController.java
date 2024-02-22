@@ -5,11 +5,13 @@ package com.diudiu.diudiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.diudiu.diudiu.common.R;
+import com.diudiu.diudiu.common.TokenRequired;
 import com.diudiu.diudiu.entity.Admin;
 import com.diudiu.diudiu.entity.FixLog;
 import com.diudiu.diudiu.entity.User;
 import com.diudiu.diudiu.entity.dto.FixLogDto;
 import com.diudiu.diudiu.service.AdminService;
+import com.diudiu.diudiu.service.ChatLogService;
 import com.diudiu.diudiu.service.FixLogService;
 import com.diudiu.diudiu.service.UserService;
 
@@ -18,8 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /*   
@@ -47,6 +51,9 @@ public class AdminController{
     private UserService userService;
     @Resource
     private FixLogService fixLogService;
+    @Resource
+    private ChatLogService chatLogService;
+    @TokenRequired
     @PostMapping("/findById")
     public R findById(@RequestBody Map<String, Object> map) {
         Integer id = (Integer) map.get("adminId");
@@ -64,8 +71,29 @@ public class AdminController{
                         new LambdaQueryWrapper<User>()
                                 .eq(User::getSiteY, admin.getSiteY())
                                 .eq(User::getSiteD, admin.getSiteD())
-                )
-        );
+                ).stream()
+                        .map(user -> {
+                            HashMap <String, Object> userMap = new HashMap<>();
+                            userMap.put("id", user.getId());
+                            userMap.put("name", user.getName());
+                            userMap.put("phone", user.getPhone());
+                            userMap.put("email", user.getEmail());
+                            userMap.put("gender", user.getGender());
+                            userMap.put("ava", user.getAva());
+                            userMap.put("siteY", user.getSiteY());
+                            userMap.put("siteD", user.getSiteD());
+                            userMap.put("siteC", user.getSiteC());
+                            userMap.put("siteF", user.getSiteF());
+
+                            HashMap map1 = new HashMap();
+                            map1.put("senderId", admin.getId());
+                            map1.put("accepterId", user.getId());
+                            map1.put("senderIdentity", "管理员");
+                            map1.put("accepterIdentity", "用户");
+                            Integer unCheckedMessageCount = chatLogService.getUncheckedMessageCount(map1);
+                            userMap.put("unCheckedMessageCount", unCheckedMessageCount);
+                            return userMap;
+                        }).collect(Collectors.toList()));
     }
 
     @PostMapping("/findFixLog")

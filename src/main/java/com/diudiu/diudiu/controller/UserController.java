@@ -4,6 +4,7 @@ package com.diudiu.diudiu.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.diudiu.diudiu.common.R;
+import com.diudiu.diudiu.common.TokenRequired;
 import com.diudiu.diudiu.entity.Admin;
 import com.diudiu.diudiu.entity.FixLog;
 import com.diudiu.diudiu.entity.User;
@@ -46,6 +47,7 @@ public class UserController {
     @Resource
     private FixLogService fixLogService;
 
+    @TokenRequired
     @PostMapping("/findById")
     public R findById(@RequestBody Map<String, Object> map) {
         Integer id = (Integer) map.get("userId");

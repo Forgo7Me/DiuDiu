@@ -93,6 +93,20 @@
             <el-tag type="primary">{{ scope.row.email }}</el-tag>
           </template>
         </el-table-column>
+<!--        操作按钮"聊天",若未读消息数不为0则使用template在el-button上使用danger的el-tag展示未读消息数unCheckedMessageCount,为0则仅使用文字-->
+        <el-table-column
+            label="操作"
+            width="180"
+        >
+          <template slot-scope="scope">
+            <el-button type="primary" @click="toUserChat(scope.row.id)">聊天
+              <template>
+                <el-tag v-if="scope.row.unCheckedMessageCount !== 0" type="danger" class="unCheckedMessage">{{ scope.row.unCheckedMessageCount }}</el-tag>
+              </template>
+            </el-button>
+          </template>
+        </el-table-column>
+
 
 
       </el-table>
@@ -170,7 +184,15 @@ export default {
       } else {
         this.filterUsers = this.users.filter(item => item.siteC === this.filter.siteC && item.siteF === this.filter.siteF);
       }
+    },
+    toUserChat(id) {
+      localStorage.setItem("accepterId", id);
+      this.$router.push({
+        path: "/admin_chat",
+      })
     }
+
+
   }
 }
 </script>
@@ -185,5 +207,8 @@ export default {
 
 .el-tag {
   font-size: 20px;
+}
+.unCheckedMessage{
+  border-radius: 50%;
 }
 </style>

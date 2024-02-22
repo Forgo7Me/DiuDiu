@@ -6,4 +6,13 @@ spring:
     username: root
     password: cg19950523
     driver-class-name: com.mysql.jdbc.Driver
+oss:
+  accessKey: AVUQ7IxmT6TgBfoSjW4qUGvCJEKUrcmLDaXzm0Xo
+  secretKey: qs5tM4VW9_NTMnQehSUNOlUnIa-0XgC2i4bs1jld
+  bucket: rikka-picture
+  link: http://ayaka.ayaka.fun/
 
+redis:
+    host: 120.55.74.105
+    port: 6379
+    database: 1

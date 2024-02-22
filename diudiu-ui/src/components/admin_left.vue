@@ -71,6 +71,7 @@ export default {
             title: "登录信息已过期，请重新登录",
             type: "warning"
           });
+          this.$router.push("/login");
         }
       });
     }

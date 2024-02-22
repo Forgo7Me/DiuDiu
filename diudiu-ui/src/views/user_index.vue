@@ -98,15 +98,7 @@ export default {
   data() {
     return {
       user: {
-        userId: 1,
-        name: '平沢唯',  //姓名
-        siteY: '樱高', //所在园区
-        siteD: '1', //所在楼栋
-        siteC: '1', //所在楼层
-        siteF: '1', //所在房间
-        gender: '', //性别
-        phone: '', //电话
-        email: ''  //邮箱
+        userId: parseInt(localStorage.getItem("id")),
       }
     }
   },

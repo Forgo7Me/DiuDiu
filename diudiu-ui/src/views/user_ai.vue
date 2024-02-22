@@ -36,10 +36,10 @@ export default {
   data() {
     return {
       user: {
-        userId: 2,
+        userId: parseInt(localStorage.getItem("id")),
       },
       chatParam: {
-        userId: 2,
+        userId: parseInt(localStorage.getItem("id")),
         content: "",
       },
       chatLogs: [],

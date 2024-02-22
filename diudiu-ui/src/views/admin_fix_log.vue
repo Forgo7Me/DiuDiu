@@ -140,7 +140,7 @@ export default {
       fixLogs: [],
       filterFixLogs: [],
       admin: {
-        adminId: 1
+        adminId: parseInt(localStorage.getItem("id"))
       },
       visible: {
         startFixVisible: false

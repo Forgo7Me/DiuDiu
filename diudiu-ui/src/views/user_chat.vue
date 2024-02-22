@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       user: {
-        userId: 1
+        userId: parseInt(localStorage.getItem("id"))
       },
       chatInfo: {
         senderName: "",

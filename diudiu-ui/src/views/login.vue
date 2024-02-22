@@ -80,7 +80,8 @@ export default {
             title: "登录成功",
             type: "success"
           });
-          localStorage.setItem("token", response.data.data);
+          localStorage.setItem("id", response.data.data.id);
+          localStorage.setItem("token", response.data.data.token);
           if(this.isLogin) {
             this.$router.push("/user_index");
           }else{

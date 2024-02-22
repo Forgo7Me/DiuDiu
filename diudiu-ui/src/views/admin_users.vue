@@ -125,7 +125,7 @@ export default {
   data() {
     return {
       admin: {
-        adminId: 1
+        adminId: parseInt(localStorage.getItem("id")),
       },
       users: [],
       filterUsers: [],

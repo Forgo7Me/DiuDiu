@@ -65,7 +65,7 @@ export default {
   },
   data() {
     return {
-      admin:{adminId:1}
+      admin:{adminId:parseInt(localStorage.getItem("id"))}
     }
   },
   created() {

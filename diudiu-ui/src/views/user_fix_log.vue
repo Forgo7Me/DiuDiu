@@ -107,7 +107,7 @@ export default {
   },
   data() {
     return {
-      user: {userId: 1},
+      user: {userId: parseInt(localStorage.getItem("id"))},
       fixLogs: [],
       filterFixLogs: [],
       fixStates: [

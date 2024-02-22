@@ -122,3 +122,9 @@ export function getUncheckedMessageCount(param){
 export function login(param){
     return axios.post(baseURL + '/login/', param)
 }
+
+// 退出登录
+export function logout(param){
+    updateAxiosHeader()
+    return axios.post(baseURL + '/login/logout',param)
+}

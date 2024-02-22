@@ -51,14 +51,14 @@
 
 <script>
 import {Notification} from "element-ui";
-import {findUserById} from "@/api/user_api";
+import {findUserById,logout} from "@/api/user_api";
 
 export default {
   data() {
     return {
       activeIndex: "",
       user: {
-        userId: 1,
+        userId: parseInt(localStorage.getItem("id"))
       }
     }
   },
@@ -67,9 +67,34 @@ export default {
   },
   methods: {
     logout() {
-      Notification({
-        title: "退出成功",
-        type: "success"
+      logout().then(response => {
+        // 询问是否确定退出
+        this.$confirm('确定退出登录吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 确定退出
+          if (response.data.code === "SUCCESS") {
+            Notification({
+              title: "退出登录成功",
+              type: "success"
+            });
+            localStorage.removeItem("token");
+            this.$router.push("/login");
+          } else if (response.data.code === "ERROR") {
+            Notification({
+              title: "退出失败",
+              type: "error"
+            });
+          }
+        }).catch(() => {
+          // 取消退出
+          this.$message({
+            type: 'info',
+            message: '已取消退出'
+          });
+        });
       });
     },
     setActive(index) {

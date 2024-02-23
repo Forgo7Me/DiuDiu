@@ -78,8 +78,8 @@ export default {
         this.$router.push("/admin_index");
       } else if (index === "2" && this.$route.path !== "/admin_users") {
         this.$router.push("/admin_users");
-      }else if (index === "3" && this.$route.path !== "/user_fix_log") {
-        this.$router.push("/user_fix_log");
+      }else if (index === "3" && this.$route.path !== "/admin_fix_log") {
+        this.$router.push("/admin_fix_log");
       }
       this.activeIndex = index;
     },

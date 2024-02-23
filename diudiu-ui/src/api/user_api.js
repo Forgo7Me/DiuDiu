@@ -82,6 +82,11 @@ export function uploadPostContent(param){
     return axios.post(baseURL + '/post/uploadPostContent', param)
 }
 
+// 删除帖子
+export function deletePost(param){
+    updateAxiosHeader()
+    return axios.post(baseURL + '/post/delete', param)
+}
 // 获取用户和ai的聊天记录
 export function getAiChatLog(param){
     updateAxiosHeader()

@@ -60,6 +60,8 @@
             {{ drawerPost.favorCount }}<i class="el-icon-star-on"></i></el-tag>
           <el-tag v-else type="info" class="user-favor" @click="userFavor">{{ drawerPost.favorCount }}<i
               class="el-icon-star-off"></i></el-tag>
+<!--          若该帖子发帖人是当前用户，则让一个danger的el-button"删除"可见-->
+          <el-button v-if="drawerPost.userId === user.userId" type="danger" @click="deletePost(drawerPost.id)">删除</el-button>
         </div>
 
         <div class="drawer-comment">
@@ -165,7 +167,7 @@
 <script>
 import user_left from "@/components/user_left.vue";
 import {Notification} from "element-ui";
-import {getAllPost, getPostComment, favorPost, viewPost, addComment, responseComment,uploadPostImage,uploadPostContent} from "@/api/user_api";
+import {getAllPost, getPostComment, favorPost, viewPost, addComment, responseComment,uploadPostImage,uploadPostContent,deletePost} from "@/api/user_api";
 import axios from "axios";
 
 export default {
@@ -484,8 +486,43 @@ export default {
         }
       });
     },
-    backToTop() {
-      window.scrollTo(0, 0);
+    // 删除帖子
+    deletePost(id) {
+      this.$confirm('此操作将永久删除该帖子, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const param = {
+          postId: parseInt(id)
+        }
+        deletePost(param).then(response => {
+          if (response.data.code === "SUCCESS") {
+            this.posts = this.posts.filter(post => post.id !== id);
+            this.filterPosts = this.filterPosts.filter(post => post.id !== id);
+            this.drawerVisible = false;
+            Notification({
+              title: "删除成功",
+              type: "success"
+            });
+          } else if (response.data.code === "ERROR") {
+            Notification({
+              title: "删除失败",
+              type: "error"
+            });
+          } else if (response.data.code === "TIMEOUT") {
+            Notification({
+              title: "登录信息已过期，请重新登录",
+              type: "warning"
+            });
+          }
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
 
 

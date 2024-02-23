@@ -57,7 +57,11 @@ public class PostController {
     public R getAllPost(@RequestBody Map<String, Object> map) {
         Integer userId = (Integer) map.get("userId");
         return R.ok(
-                postService.list()
+                postService.list(
+                        new LambdaQueryWrapper<Post>()
+                                .eq(Post::getStatus, "正常")
+                                .orderByDesc(Post::getCreateTime)
+                        )
                         .stream()
                         .map(post -> {
                             PostDto dto = new PostDto();
@@ -230,6 +234,16 @@ public class PostController {
         post.setShareCount(0);
         postService.save(post);
         return R.ok(post.getId());
+    }
+
+    // 删除帖子
+    @PostMapping("/delete")
+    public R delete(@RequestBody Map<String, Integer> map) {
+        Integer postId = map.get("postId");
+        Post post = postService.getById(postId);
+        post.setStatus("删除");
+        postService.updateById(post);
+        return R.ok("删除成功");
     }
 }
 

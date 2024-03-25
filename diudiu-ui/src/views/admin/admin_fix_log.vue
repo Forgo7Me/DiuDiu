@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display:flex;flex-direction: row">
     <admin_left/>
     <div class="main-container">
 <!--      筛选报修状态和报修人的筛选框-->
@@ -11,7 +11,7 @@
             <el-option
                 v-for="item in filterContent.fixStates"
                 :key="item"
-                :label="item"
+                :label="item.label"
                 :value="item"
             >
             </el-option>
@@ -31,15 +31,16 @@
           </el-select>
         </el-col>
       </el-row>
+<!--      为el-table-column添加高度限制-->
       <el-table
           :data="filterFixLogs"
           border
-          height="95vh"
-          style="width: 100%">
+          height="90vh"
+          style="width: 100%;border-radius: 10px"
+          header-cell-class-name="table-header">
         <el-table-column
             prop="id"
             label="报修编号"
-            width="180"
         >
           <template slot-scope="scope">
             <el-tag type="success">{{ scope.row.id }}</el-tag>
@@ -48,7 +49,6 @@
         <el-table-column
             prop="userName"
             label="报修人"
-            width="180"
         >
           <template slot-scope="scope">
             <el-tag type="primary">{{ scope.row.userName }}</el-tag>
@@ -57,7 +57,6 @@
         <el-table-column
             prop="description"
             label="报修描述"
-            width="180"
         >
           <template slot-scope="scope">
             <el-tag type="danger">{{ scope.row.description }}</el-tag>
@@ -66,7 +65,7 @@
         <el-table-column
             prop="createTime"
             label="报修时间"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag type="success">{{ timeFormat(scope.row.createTime) }}</el-tag>
@@ -77,7 +76,7 @@
         <el-table-column
             prop="takeTime"
             label="开始处理时间"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag v-if="scope.row.takeTime !== '0'" type="primary">{{ timeFormat(scope.row.takeTime) }}</el-tag>
@@ -88,7 +87,7 @@
         <el-table-column
             prop="finishTime"
             label="完成时间"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag v-if="scope.row.finishTime !== '0'" type="success">{{ timeFormat(scope.row.finishTime) }}</el-tag>
@@ -98,30 +97,24 @@
         <el-table-column
             prop="state"
             label="报修状态"
-            width="180"
+            
         >
           <template slot-scope="scope">
-            <!--          若state为"未处理"则使用danger的el-tag,"处理中"为primary,"已完成"为success-->
-            <el-tag v-if="scope.row.state === '未处理'" type="danger">{{ scope.row.state }}</el-tag>
-            <el-tag v-else-if="scope.row.state === '处理中'" type="primary">{{ scope.row.state }}</el-tag>
-            <el-tag v-else type="success">{{ scope.row.state }}</el-tag>
+            <el-tag :type="FixStateTag(scope.row.state)">{{ FixStateString(scope.row.state) }}</el-tag>
           </template>
         </el-table-column>
         <!--  操作栏，若state为"未处理"则显示一个"开始处理"按钮，其他情况下不显示该按钮-->
         <el-table-column
             label="操作"
-            width="180">
+            >
           <template slot-scope="scope">
-            <el-button v-if="scope.row.state === '未处理'" type="primary" @click="clickStart(scope.row.id)">开始处理
+            <el-button v-if="scope.row.state === 0" type="primary" @click="pass(scope.row.id)">审核通过
+            </el-button>
+            <el-button v-if="scope.row.state === 0" type="danger" @click="reject(scope.row.id)">审核不通过
             </el-button>
           </template>
         </el-table-column>
       </el-table>
-<!--      开始处理的el-dialog，点击开始处理后弹出是否确认开始处理，点击确认后将id传入指定方法-->
-      <el-dialog title="确定开始处理?" :visible.sync="visible.startFixVisible" width="300px">
-        <el-button type="primary" @click="startFixLog">确认</el-button>
-        <el-button @click="visible.startFixVisible = false">取消</el-button>
-      </el-dialog>
     </div>
   </div>
 </template>
@@ -129,7 +122,8 @@
 <script>
 import admin_left from "@/components/admin_left.vue";
 import {Notification} from "element-ui";
-import {findFixLogByAdmin,startFix} from "@/api/admin_api"
+import {findFixLogByAdmin,pass,reject} from "@/api/admin_api"
+import {FixStateUtil} from "@/api/config";
 
 export default {
   components: {
@@ -151,20 +145,24 @@ export default {
         fixUser: '全部'
       },
       filterContent: {
-        fixStates: [
-          "全部",
-          "未处理",
-          "处理中",
-          "已完成"
-        ],
+        fixStates: [],
         fixUsers: ["全部"]
       }
     }
   },
   created() {
     this.findFixLogByAdmin();
+    this.filterContent.fixStates = FixStateUtil;
   },
   methods: {
+    FixStateTag(param){
+      // param对应FixStateUtil的value,返回对应的el-tag的type
+      return FixStateUtil.find(item => item.value === param).type;
+    },
+    FixStateString(param){
+      // param对应FixStateUtil的value,返回对应的el-tag的type
+      return FixStateUtil.find(item => item.value === param).label;
+    },
     findFixLogByAdmin() {
       findFixLogByAdmin(this.admin).then(response => {
         if (response.data.code === "SUCCESS") {
@@ -199,49 +197,74 @@ export default {
       const second = date.getSeconds();
       return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     },
-    clickStart(id) {
-      this.visible.startFixVisible = true;
-      this.fixId = id;
-    },
-    startFixLog() {
-      this.visible.startFixVisible = false;
-      const param = {
-        id: this.fixId
+    filterLogs() {
+      if (this.filter.fixState.label === "全部" && this.filter.fixUser === "全部") {
+        this.filterFixLogs = this.fixLogs;
+      } else if (this.filter.fixState.label === "全部" && this.filter.fixUser !== "全部") {
+        this.filterFixLogs = this.fixLogs.filter(item => item.userName === this.filter.fixUser);
+      } else if (this.filter.fixState.label !== "全部" && this.filter.fixUser === "全部") {
+        this.filterFixLogs = this.fixLogs.filter(item => item.state === this.filter.fixState.value);
+      } else {
+        this.filterFixLogs = this.fixLogs.filter(item => item.state === this.filter.fixState.value && item.userName === this.filter.fixUser);
       }
-      startFix(param).then(response => {
-        if (response.data.code === "SUCCESS") {
-          this.findFixLogByAdmin();
-          Notification({
-            title: "成功",
-            message: "开始处理成功",
-            type: "success"
-          });
+    },
 
-        } else if (response.data.code === "ERROR") {
-          Notification({
-            title: "失败",
-            message: "开始处理失败",
-            type: "error"
-          });
-        } else if (response.data.code === "TIMEOUT") {
-          Notification({
-            title: "错误",
-            message: "登录信息已过期，请重新登录",
-            type: "warning"
-          });
-        }
+    // 审核通过
+    pass(id){
+      const param = {
+        id : id
+      }
+      this.$confirm("确定审核通过吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        pass(param).then(res => {
+          if (res.data.code === "SUCCESS") {
+            Notification.success({
+              title: "成功",
+              message: "审核通过"
+            })
+            this.findFixLogByAdmin()
+          } else {
+            Notification.error({
+              title: "错误",
+              message: "服务器错误，请等待恢复"
+            })
+          }
+        })
+      }).catch(() => {
+
       });
     },
-    filterLogs() {
-      if (this.filter.fixState === "全部" && this.filter.fixUser === "全部") {
-        this.filterFixLogs = this.fixLogs;
-      } else if (this.filter.fixState === "全部" && this.filter.fixUser !== "全部") {
-        this.filterFixLogs = this.fixLogs.filter(item => item.userName === this.filter.fixUser);
-      } else if (this.filter.fixState !== "全部" && this.filter.fixUser === "全部") {
-        this.filterFixLogs = this.fixLogs.filter(item => item.state === this.filter.fixState);
-      } else {
-        this.filterFixLogs = this.fixLogs.filter(item => item.state === this.filter.fixState && item.userName === this.filter.fixUser);
+
+    // 审核不通过
+    reject(id){
+      const param = {
+        id : id
       }
+      this.$confirm("确定审核不通过吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        reject(param).then(res => {
+          if (res.data.code === "SUCCESS") {
+            Notification.success({
+              title: "成功",
+              message: "审核不通过"
+            })
+            this.findFixLogByAdmin()
+          } else {
+            Notification.error({
+              title: "错误",
+              message: "服务器错误，请等待恢复"
+            })
+          }
+        })
+      }).catch(() => {
+
+      });
     }
 
   }

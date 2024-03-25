@@ -108,7 +108,7 @@ public class AdminController{
                         dto.setId(fixLog.getId());
                         dto.setUserName(userService.getById(fixLog.getUserId()).getName());
                         dto.setAdminName(adminService.getById(fixLog.getAdminId()).getName());
-                        dto.setState(FixStateUtil.getState(fixLog.getState()));
+                        dto.setState(fixLog.getState());
                         dto.setDescription(fixLog.getDescription());
                         dto.setCreateTime(fixLog.getCreateTime());
                         dto.setTakeTime(fixLog.getTakeTime());
@@ -127,7 +127,7 @@ public class AdminController{
                             dto.setId(fixLog.getId());
                             dto.setUserName(userService.getById(fixLog.getUserId()).getName());
                             dto.setAdminName(adminService.getById(fixLog.getAdminId()).getName());
-                            dto.setState(FixStateUtil.getState(fixLog.getState()));
+                            dto.setState(fixLog.getState());
                             dto.setDescription(fixLog.getDescription());
                             dto.setCreateTime(fixLog.getCreateTime());
                             dto.setTakeTime(fixLog.getTakeTime());
@@ -151,6 +151,41 @@ public class AdminController{
         }
     }
 
+    // 审核通过
+    @PostMapping("/pass")
+    public R pass(@RequestBody Map<String,Object> map){
+        try {
+            Integer id = (Integer) map.get("id");
+            FixLog fixLog = fixLogService.getById(id);
+            if (fixLog.getState() != 0){
+                return R.error("报修状态错误");
+            }
+            fixLog.setState(1);
+            fixLog.setTakeTime(String.valueOf(System.currentTimeMillis()));
+            fixLogService.updateById(fixLog);
+            return R.ok("审核通过成功");
+        }catch (Exception e){
+            return R.error("审核通过失败");
+        }
+    }
+
+
+    // 审核不通过
+    @PostMapping("/reject")
+    public R reject(@RequestBody Map<String,Object> map){
+        try {
+            Integer id = (Integer) map.get("id");
+            FixLog fixLog = fixLogService.getById(id);
+            if (fixLog.getState() != 0){
+                return R.error("报修状态错误");
+            }
+            fixLog.setState(4);
+            fixLogService.updateById(fixLog);
+            return R.ok("审核不通过成功");
+        }catch (Exception e){
+            return R.error("审核不通过失败");
+        }
+    }
 }
 
 

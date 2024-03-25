@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display:flex;flex-direction: row">
     <user_left/>
     <div class="main-container">
       <div class="post-head" style="margin-top: 40px">

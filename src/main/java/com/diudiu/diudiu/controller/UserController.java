@@ -83,6 +83,7 @@ public class UserController {
                     description,
                     createTime,
                     "0",
+                    "0",
                     "0"
             );
             fixLogService.save(fixLog);
@@ -110,7 +111,7 @@ public class UserController {
                                 dto.setId(fixLog.getId());
                                 dto.setAdminName(adminService.getById(fixLog.getAdminId()).getName());
                                 dto.setUserName(user.getName());
-                                dto.setState(FixStateUtil.getState(fixLog.getState()));
+                                dto.setState(fixLog.getState());
                                 dto.setDescription(fixLog.getDescription());
                                 dto.setCreateTime(fixLog.getCreateTime());
                                 dto.setTakeTime(fixLog.getTakeTime());
@@ -129,7 +130,7 @@ public class UserController {
                             dto.setId(fixLog.getId());
                             dto.setAdminName(adminService.getById(fixLog.getAdminId()).getName());
                             dto.setUserName(user.getName());
-                            dto.setState(FixStateUtil.getState(fixLog.getState()));
+                            dto.setState(fixLog.getState());
                             dto.setDescription(fixLog.getDescription());
                             dto.setCreateTime(fixLog.getCreateTime());
                             dto.setTakeTime(fixLog.getTakeTime());
@@ -144,7 +145,10 @@ public class UserController {
         try {
             Integer id = (Integer) map.get("id");
             FixLog fixLog = fixLogService.getById(id);
-            fixLog.setState(2);
+            if (fixLog.getState() != 2){
+                return R.error("报修状态错误");
+            }
+            fixLog.setState(3);
             fixLog.setFinishTime(String.valueOf(System.currentTimeMillis()));
             fixLogService.updateById(fixLog);
             return R.ok("确认完成成功");

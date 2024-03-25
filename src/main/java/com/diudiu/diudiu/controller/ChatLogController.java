@@ -2,7 +2,6 @@ package com.diudiu.diudiu.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.diudiu.diudiu.common.ChatLogType;
 import com.diudiu.diudiu.common.R;
 import com.diudiu.diudiu.entity.Admin;
@@ -16,7 +15,6 @@ import com.diudiu.diudiu.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -1,35 +1,54 @@
 <template>
-<div>
-  <admin_left/>
-  <div class="main-container">
-    <div class="chat-input">
-      <!--        返回按钮，返回上一个路由-->
-      <el-button type="primary" @click="back" icon="el-icon-arrow-left" class = "back-button">返回</el-button>
-      <el-input type="textarea" v-model="chatParam.content" placeholder="请输入聊天内容" class="chat-input-area" v-loading="sendLoading"></el-input>
-      <el-button type="primary" @click="messageSend" class="chat-send" :loading="sendLoading">发送</el-button>
-    </div>
-    <div class="chat-log" v-for="log in chatLogs" :key="log.id">
-      <!-- Sender's message -->
-      <div class="chat-message user-message" v-if="log.type === 'SENDER'">
-        <div class="message-time">{{ new Date(log.createTime).toLocaleString() }}</div>
-        <div class="message-content">{{ log.content }}</div>
-        <img class="avatar" :src="chatInfo.senderAva" alt="User Avatar">
+  <div style="display:flex;flex-direction: row">
+    <admin_left/>
+    <div class="main-container">
+      <div class="chat-log-area" ref="chatLog">
+        <div class="chat-log" v-for="log in chatLogs" :key="log.id">
+          <!-- Sender's message -->
+          <div class="chat-message user-message" v-if="log.type === 'SENDER'">
+            <div class="message-time">{{ new Date(log.createTime).toLocaleString() }}</div>
+            <div class="message-content">{{ log.content }}</div>
+            <img class="avatar" :src="chatInfo.senderAva" alt="User Avatar">
+          </div>
+          <!-- Accepter's message -->
+          <div class="chat-message ai-message" v-if="log.type === 'ACCEPTER'">
+            <img class="avatar" :src="chatInfo.accepterAva" alt="AI Avatar">
+            <div class="message-content">{{ log.content }}</div>
+            <div class="message-time">{{ new Date(log.createTime).toLocaleString() }}</div>
+          </div>
+        </div>
       </div>
-      <!-- Accepter's message -->
-      <div class="chat-message ai-message" v-if="log.type === 'ACCEPTER'">
-        <img class="avatar" :src="chatInfo.accepterAva" alt="AI Avatar">
-        <div class="message-content">{{ log.content }}</div>
-        <div class="message-time">{{ new Date(log.createTime).toLocaleString() }}</div>
+<!--      发送框-->
+      <div class="chat-input">
+        <el-button
+            type="primary"
+            @click="back"
+            class="back-button"
+        >返回
+        </el-button>
+        <el-input
+            v-model="chatParam.content"
+            placeholder="请输入消息"
+            type="textarea"
+            :rows="2"
+            class="chat-input-area"
+        ></el-input>
+        <el-button
+            type="primary"
+            @click="messageSend"
+            :loading="sendLoading"
+            class="chat-send"
+        >发送
+        </el-button>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
 import {Notification} from "element-ui";
 import admin_left from "@/components/admin_left.vue";
-import { getChatInfo,userChatLog,chat } from "@/api/user_api";
+import {getChatInfo, userChatLog, chat} from "@/api/user_api";
 
 export default {
   components: {
@@ -57,14 +76,21 @@ export default {
     this.getChatLog();
     this.getChatInfo();
   },
+  watch: {
+    chatLogs() {
+      this.$nextTick(() => {
+        this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+      });
+    }
+  },
   methods: {
     // 聊天记录排序，降序
-    sortChatLog(){
+    sortChatLog() {
       this.chatLogs.sort((a, b) => {
-        return b.createTime - a.createTime;
+        return a.createTime - b.createTime;
       });
     },
-    getChatLog(){
+    getChatLog() {
       const param = {
         senderId: this.admin.adminId,
         senderIdentity: "管理员",
@@ -88,7 +114,7 @@ export default {
         }
       });
     },
-    getChatInfo(){
+    getChatInfo() {
       const param = {
         senderId: this.admin.adminId,
         senderIdentity: "管理员",
@@ -111,7 +137,7 @@ export default {
         }
       });
     },
-    back(){
+    back() {
       this.$router.go(-1);
     },
     messageSend() {
@@ -160,22 +186,28 @@ export default {
 
 <style scoped>
 .main-container {
-  margin-left: 200px;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  margin-top: 5vh;
+  margin-left: 20vh;
+  margin-right: 20vh;
 }
+
 
 .chat-input {
   display: flex;
   align-items: center;
   margin-bottom: 40px;
   margin-top: 20px;
-  width: 60%;
-  margin-left: 20%;
+  width: 80%;
 }
 
-.back-button{
+.back-button {
   margin-right: 20px;
 }
+
 .chat-input-area {
   margin-left: 20px;
   margin-right: 20px;
@@ -185,13 +217,18 @@ export default {
   margin-left: 20px;
 }
 
+.chat-log-area {
+  height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px #ccc;
+  border-radius: 10px;
+}
+
 .chat-log {
-  width: 60%;
-  //display: flex;
+  width: 90%;
+  margin-left: 5%;
   flex-direction: column;
   align-items: flex-end;
-  margin-top: 20px;
-  margin-left: 20%;
 }
 
 .chat-message {

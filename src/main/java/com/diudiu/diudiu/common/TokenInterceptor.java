@@ -39,7 +39,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                     response.getWriter().write(JSON.toJSONString(R.timeout()));
                     return false;
                 }
-                Token tokenEntity = tokenService.getOne(new LambdaQueryWrapper<Token>().eq(Token::getTokenKey, token));
+                Token tokenEntity = tokenService.getOne(new LambdaQueryWrapper<Token>().eq(Token::getTokenValue, token));
                 if (tokenEntity.getTime() < System.currentTimeMillis()) {
                     // token不合格，返回R.timeOut()
                     response.setContentType("application/json;charset=UTF-8");
@@ -60,6 +60,6 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     private boolean isValidToken(String token) {
         // 验证redis中是否存放有以该token为key的键值对
-        return !Boolean.TRUE.equals(tokenService.getOne(new LambdaQueryWrapper<Token>().eq(Token::getTokenKey, token)) != null);
+        return !Boolean.TRUE.equals(tokenService.getOne(new LambdaQueryWrapper<Token>().eq(Token::getTokenValue, token)) != null);
     }
 }

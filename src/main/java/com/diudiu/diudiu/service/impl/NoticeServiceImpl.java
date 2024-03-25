@@ -1,13 +1,11 @@
-package com.diudiu.diudiu.entity;
+package com.diudiu.diudiu.service.impl;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.diudiu.diudiu.mapper.NoticeMapper;
+import com.diudiu.diudiu.entity.Notice;
+import com.diudiu.diudiu.service.NoticeService;
+import org.springframework.stereotype.Service;
 
-import java.io.Serial;
-import java.io.Serializable;
-import lombok.*;
-import com.baomidou.mybatisplus.annotation.TableName;
 /*   
 * 给世界一点小小的二次元震撼
 *
@@ -21,20 +19,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 * ░░   ░░         ░░░░░░░   ░░      ░░░
 *                                            
 * @Author : DRME
-* @Create : com.sjhy.plugin.tool.TimeUtils@72535662
+* @Create : com.sjhy.plugin.tool.TimeUtils@4a16de20
 */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Token implements Serializable {
-    // id从1开始自动递增
-    @Serial
-    private static final long serialVersionUID = -490786095830872254L;
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
-    private String tokenValue;
-    
-    private Long time;
+@Service("noticeService")
+public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> implements NoticeService {
 
 }
 

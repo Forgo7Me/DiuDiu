@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <user_left/>
-    <div class="main-container">
-      <div class="chat-input">
-        <el-input type="textarea" v-model="chatParam.content" placeholder="请输入聊天内容" class="chat-input-area" v-loading="sendLoading"></el-input>
-        <el-button type="primary" @click="aiChat" class="chat-send" :loading="sendLoading">发送</el-button>
-      </div>
+  <div style="display:flex;flex-direction: row">
+    <div>
+      <user_left/>
+    </div>
+    <div class="main-container" >
+      <div class="chat-log-area" ref="chatLog">
       <div class="chat-log" v-for="log in chatLogs" :key="log.id">
         <!-- User's question -->
         <div class="chat-message user-message">
@@ -19,6 +18,24 @@
           <div class="message-content">{{ log.answer }}</div>
           <div class="message-time">{{ new Date(log.createTime).toLocaleString() }}</div>
         </div>
+      </div>
+      </div>
+      <!--        问题发送框，固定于容器底部-->
+      <div class="chat-input">
+        <el-input
+            v-model="chatParam.content"
+            placeholder="请输入问题"
+            type="textarea"
+            :rows="2"
+            class="chat-input-area"
+        ></el-input>
+        <el-button
+            type="primary"
+            @click="aiChat"
+            :loading="sendLoading"
+            class="chat-send"
+        >发送
+        </el-button>
       </div>
     </div>
   </div>
@@ -52,6 +69,13 @@ export default {
   created() {
     this.getChatLog();
     this.findUserById();
+  },
+  watch: {
+    chatLogs() {
+      this.$nextTick(() => {
+        this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+      });
+    }
   },
   methods: {
     findUserById() {
@@ -119,7 +143,7 @@ export default {
     },
     sortLogs() {
       // 将聊天记录按照id排序，保证最新的消息在最上面(id越大，消息越新)
-      this.chatLogs.sort((a, b) => b.id - a.id);
+      this.chatLogs.sort((a, b) => a.id - b.id);
     }
   }
 }
@@ -130,7 +154,12 @@ export default {
   margin-left: 200px;
   padding: 20px;
 }
-
+.chat-log-area{
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ccc;
+  height: 87vh;
+  overflow-y: auto;
+}
 .chat-input {
   display: flex;
   align-items: center;
@@ -140,34 +169,33 @@ export default {
   margin-left: 20%;
 }
 
+.back-button {
+  margin-right: 20px;
+}
+
 .chat-input-area {
+  margin-left: 20px;
   margin-right: 20px;
 }
 
 .chat-send {
   margin-left: 20px;
 }
-
 .chat-log {
-  width: 60%;
+  width: 80%;
   //display: flex;
   flex-direction: column;
   align-items: flex-end;
   margin-top: 20px;
-  margin-left: 20%;
+  margin-left: 10%;
 }
 
 .chat-message {
   display: flex;
   align-items: center;
   margin: 10px 0;
-  transition: all 0.5s;
 }
 
-.chat-message:hover {
-  transform: scale(1.1);
-  transition: all 0.5s;
-}
 
 .user-message {
   justify-content: flex-end;

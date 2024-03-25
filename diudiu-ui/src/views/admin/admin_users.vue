@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display:flex;flex-direction: row">
     <admin_left/>
     <div class="main-container">
       <el-row style="margin-top: 10px; margin-bottom: 10px">
@@ -32,7 +32,7 @@
       </el-row>
       <el-table
           :data="filterUsers"
-          style="width: 100%"
+          style="width: 100%;border-radius: 10px"
           border
           height="90vh"
           stripe
@@ -41,7 +41,7 @@
         <el-table-column
             prop="name"
             label="姓名"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag type="success">{{ scope.row.name }}</el-tag>
@@ -50,7 +50,7 @@
         <el-table-column
             prop="siteC"
             label="楼层"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag type="primary">{{ scope.row.siteC }}</el-tag>
@@ -59,7 +59,7 @@
         <el-table-column
             prop="siteF"
             label="房间"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag type="danger">{{ scope.row.siteF }}</el-tag>
@@ -68,7 +68,7 @@
         <el-table-column
             prop="gender"
             label="性别"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag v-if="scope.row.gender === '女'" type="danger">{{ scope.row.gender }}</el-tag>
@@ -78,7 +78,7 @@
         <el-table-column
             prop="phone"
             label="手机号"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-tag type="success">{{ scope.row.phone }}</el-tag>
@@ -96,7 +96,7 @@
 <!--        操作按钮"聊天",若未读消息数不为0则使用template在el-button上使用danger的el-tag展示未读消息数unCheckedMessageCount,为0则仅使用文字-->
         <el-table-column
             label="操作"
-            width="180"
+            
         >
           <template slot-scope="scope">
             <el-button type="primary" @click="toUserChat(scope.row.id)">聊天

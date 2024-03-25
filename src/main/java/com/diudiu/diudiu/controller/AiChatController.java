@@ -43,12 +43,14 @@ public class AiChatController {
     @Resource
     private AiLogService aiLogService;
 
+    // 获取当前用户与Ai的聊天记录
     @PostMapping("/getLog")
     public R getChatLog(@RequestBody Map<String,Integer> map){
         Integer userId = map.get("userId");
         return R.ok(aiLogService.list(new LambdaQueryWrapper<AiLog>().eq(AiLog::getUserId,userId)));
     }
 
+    // 当前用户与ai聊天，将问题和ai回答作为聊天记录存入数据库
     @PostMapping("/chat")
     public R chat(@RequestBody ChatParam chatParam) {
         Integer userId = chatParam.getUserId();

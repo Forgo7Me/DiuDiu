@@ -3,33 +3,41 @@
     <div class="main-box">
       <div :class="['container', 'container-register', { 'is-txl': isLogin }]">
         <form>
-          <h2 class="title">管理员登录</h2>
+          <h2 class="title">注册</h2>
           <span class="text">欢迎回来</span>
-          <input class="form__input" v-model="login.username" type="text" placeholder="账号"/>
-          <input class="form__input" v-model="login.password" type="password" placeholder="密码"/>
-          <div class="primary-btn" @click="login">立即登录</div>
-          <div class="primary-btn" @click="toFixerLogIn">切换到维修员登录</div>
+          <input class="form__input" v-model="register.username" type="text" placeholder="账号"/>
+          <input class="form__input" v-model="register.password" type="password" placeholder="密码"/>
+          <input class="form__input" v-model="register.confirmPassword" type="password" placeholder="确认密码"/>
+          <input class="form__input" v-model="register.name" type="text" placeholder="姓名"/>
+          <el-radio-group v-model="register.gender">
+            性别
+            <el-radio label="男">男</el-radio>
+            <el-radio label="女">女</el-radio>
+          </el-radio-group>
+          <input class="form__input" v-model="register.phone" type="password" placeholder="手机号"/>
+          <div class="primary-btn" @click="toRegister">注册</div>
         </form>
       </div>
       <div
           :class="['container', 'container-login', { 'is-txl is-z200': isLogin }]"
       >
         <form>
-          <h2 class="title">学生登录</h2>
+          <h2 class="title">登录</h2>
           <span class="text">or use email for registration</span>
           <input class="form__input" v-model="login.username" type="text" placeholder="账号"/>
           <input class="form__input" v-model="login.password" type="password" placeholder="密码"/>
           <div class="primary-btn" @click="login">立即登录</div>
+          <div class="primary-btn" @click="toUser">切换到学生端</div>
         </form>
       </div>
       <div :class="['switch', { login: isLogin }]">
         <div class="switch__circle"></div>
         <div class="switch__circle switch__circle_top"></div>
         <div class="switch__container">
-          <h2>DiuDiu !</h2>
+          <h2>欢迎使用报修接单平台</h2>
 
           <div class="primary-btn" @click="isLogin = !isLogin">
-            {{ isLogin ? "管理员登录" : "学生登录" }}
+            {{ isLogin ? "注册" : "登录" }}
           </div>
         </div>
       </div>
@@ -40,6 +48,8 @@
 <script>
 import {Notification} from "element-ui";
 import {login} from "@/api/user_api";
+import {fixerApi} from "@/api/fixer_api";
+
 export default {
   name: "LoginBox",
   data() {
@@ -49,12 +59,15 @@ export default {
         email: "",
         password: "",
       },
-      registerForm: {
-        name: "",
-        email: "",
-        password: "",
+      register:{
+        username:"",
+        password:"",
+        name:"",
+        confirmPassword:"",
+        gender:"",
+        phone:""
       },
-      identity:""
+      identity:"修理员"
     };
   },
   created() {
@@ -63,11 +76,6 @@ export default {
   },
   methods: {
     login() {
-      if(this.isLogin){
-        this.identity = "学生"
-      }else{
-        this.identity = "管理员"
-      }
       const param = {
         identity : this.identity,
         username: this.login.username,
@@ -81,24 +89,80 @@ export default {
           });
           localStorage.setItem("id", response.data.data.id);
           localStorage.setItem("token", response.data.data.token);
-          if(this.isLogin) {
-            this.$router.push("/user_index");
-          }else{
-            this.$router.push("/admin_index");
-          }
+          localStorage.setItem("identity", this.identity);
+          this.$router.push("/fixer_index");
         } else if (response.data.code === "ERROR") {
           Notification({
             title: "登录失败",
+            message: response.data.msg,
             type: "error"
           });
         }
       });
     },
 
-    // 切换到维修员登录
-    toFixerLogIn(){
-      this.$router.push("/fixer_login");
+    toRegister() {
+      // 密码不一致
+      if(this.register.password !== this.register.confirmPassword){
+        Notification({
+          title: "注册失败",
+          message: "两次密码不一致",
+          type: "error"
+        });
+        return;
+      }
+
+      // 所有参数不得为空
+      const param = {
+        username: this.register.username,
+        password: this.register.password,
+        name: this.register.name,
+        gender: this.register.gender,
+        phone: this.register.phone,
+        identity: this.identity
+      }
+
+      if (param.username === "" || param.password === "" || param.gender === "" || param.phone === "" || param.name === "") {
+        Notification({
+          title: "注册失败",
+          message: "请填写完整信息",
+          type: "error"
+        });
+        return;
+      }
+      // 验证手机号
+      const reg = /^1[3|4|5|7|8][0-9]{9}$/;
+      if (!reg.test(param.phone)) {
+        Notification({
+          title: "注册失败",
+          message: "手机号格式错误",
+          type: "error"
+        });
+        return;
+      }
+
+      fixerApi.register(param).then(response => {
+        if (response.data.code === "SUCCESS") {
+          Notification({
+            title: "注册成功",
+            type: "success"
+          });
+          this.isLogin = true;
+        } else if (response.data.code === "ERROR") {
+          Notification({
+            title: "注册失败",
+            message: response.data.msg,
+            type: "error"
+          });
+        }
+      });
+    },
+
+    // 切换到学生端
+    toUser(){
+      this.$router.push("/");
     }
+
   },
 };
 </script>
@@ -156,12 +220,11 @@ export default {
 .main-box .container form .title {
   font-size: 34px;
   font-weight: 700;
-  line-height: 3;
   color: #181818;
 }
 
 .main-box .container form .text {
-  margin-top: 30px;
+  margin-top: 20px;
   margin-bottom: 12px;
 }
 

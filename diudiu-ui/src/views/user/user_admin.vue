@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div style="display:flex;flex-direction: row">
     <user_left/>
     <div class="main-container">
-      <el-descriptions title="管理员信息" column="1" border>
+      <el-descriptions title="管理员信息" column="1" border style="border-radius: 10px">
         <el-descriptions-item>
           <template slot="label">
             <i class="el-icon-user-solid"></i>

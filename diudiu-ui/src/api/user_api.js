@@ -5,7 +5,7 @@ const baseURL = 'http://localhost:8081';
 // 更新axios的默认请求头
 function updateAxiosHeader() {
     axios.defaults.headers.common['token'] = localStorage.getItem('token')
-    axios.defaults.headers.common['userId'] = localStorage.getItem('userId')
+    axios.defaults.headers.common['id'] = localStorage.getItem('id')
 }
 
 // 通过用户id查找用户

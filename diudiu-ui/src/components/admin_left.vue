@@ -1,25 +1,17 @@
 <template>
-  <div class="contianer">
-    <el-aside>
-      <el-menu>
-
-        <el-menu-item index="1" @click="setActive('1')">我的</el-menu-item>
-        <el-menu-item index="2" @click="setActive('2')">学生列表</el-menu-item>
-        <el-menu-item index="3" @click="setActive('3')">报修管理</el-menu-item>
-
-
-        <!-- 放置一个user的头像(图片)，icon下方写上从localStorage中获取的username，username下方放置logout按钮，点击后触发logot，内容全部居中 -->
-        <div class="user">
-          <img :src="admin.ava" alt="" class="user-icon">
-          <br>
-          <el-tag class="user-name" v-if="admin.gender === '女'" type="danger">{{ admin.name }}</el-tag>
-          <el-tag class="user-name" v-else type="primary">{{ admin.name }}</el-tag>
-          <br>
-          <el-button type="danger" @click="logout" class="logout">退出</el-button>
-        </div>
-
-      </el-menu>
-    </el-aside>
+  <div class="row-container">
+    <div v-for="(item,index) in items" :key="index" :class="item.route === route ? 'left-item-active' : 'left-item'"
+         @click="setActive(item.route)">
+      <i :class="item.icon"></i>
+      {{ item.name }}
+    </div>
+    <div class="ava">
+      <img :src="admin.ava" alt="User Avatar" class="ava-img">
+    </div>
+    <div class="name">
+      {{ admin.name }}
+    </div>
+    <div class="log-out" @click="logout">退出登录</div>
   </div>
 </template>
 
@@ -31,10 +23,16 @@ import {logout} from "@/api/user_api";
 export default {
   data() {
     return {
-      activeIndex: "",
       admin: {
         adminId: parseInt(localStorage.getItem("id")),
-      }
+      },
+      items: [
+        {name: '首页', route: 'admin_index', icon: 'el-icon-s-home'},
+        {name: '用户管理', route: 'admin_users', icon: 'el-icon-user'},
+        {name: '报修记录', route: 'admin_fix_log', icon: 'el-icon-s-order'},
+        {name: '公告管理', route: 'admin_notice', icon: 'el-icon-s-flag'},
+      ],
+      route: this.$route.name,
     }
   },
   created() {
@@ -73,15 +71,10 @@ export default {
       });
     },
     setActive(index) {
-
-      if (index === "1" && this.$route.path !== "/admin_index") {
-        this.$router.push("/admin_index");
-      } else if (index === "2" && this.$route.path !== "/admin_users") {
-        this.$router.push("/admin_users");
-      }else if (index === "3" && this.$route.path !== "/admin_fix_log") {
-        this.$router.push("/admin_fix_log");
+      if (index === this.route){
+        return;
       }
-      this.activeIndex = index;
+      this.$router.push({name: index});
     },
     findAdmin() {
       findAdminById(this.admin).then(response => {
@@ -106,72 +99,105 @@ export default {
 </script>
 
 <style scoped>
-.contianer {
-  width: 200px;
-  height: 100%;
-  background-color: white;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-}
-
-.el-menu {
-  width: 200px;
-  height: 100%;
-}
-
-.el-menu-item {
-  margin: 10px;
-  font-size: 20px;
-  text-align: center;
+.row-container {
+  padding-top: 2vh;
+  width: 20vh;
+  height: 96vh;
+  box-shadow: 10px 10px 10px #d1d9e6, -10px -10px 10px #f9f9f9;
   border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.left-item {
+  width: 80%;
+  height: 5vh;
+  background-color: #ecf0f3;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 1vh;
   transition: all 0.5s;
-  background: white;
 }
 
-.el-menu-item:hover {
+.left-item:hover {
+  scale: 1.2;
+}
+
+.left-item-active {
+  width: 80%;
+  height: 5vh;
   background-color: lightgreen;
-  color: white;
-  transform: scale(1.1);
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 1vh;
+  transition: all 0.5s;
 }
 
-.user {
-  text-align: center;
-  margin: 10px;
-  padding: 15px;
+.left-item-active:hover {
+  scale: 1.2;
 }
 
-.user-icon {
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+.ava {
+  width: 16vh;
+  height: 16vh;
+  border-radius: 50%;
+  margin-left: 2vh;
+  margin-top: 2vh;
+  overflow: hidden;
+  position: absolute;
+  bottom: 15vh;
+  transition: all 0.5s;
+}
+
+.ava:hover {
+  transform: scale(1.2);
+}
+
+.ava-img {
+  width: 16vh;
+  height: 16vh;
   object-fit: cover;
+}
+
+.name {
+  width: 16vh;
+  height: 5vh;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  margin-left: 2vh;
+  position: absolute;
+  bottom: 10vh;
+}
+
+.log-out {
+  width: 16vh;
+  margin-left: 2vh;
+  height: 5vh;
+  background-color: red;
+  color: whitesmoke;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  margin-top: 1vh;
   transition: all 0.5s;
+  position: absolute;
+  bottom: 2vh;
 }
 
-.user-icon:hover {
+.log-out:hover {
   transform: scale(1.2);
-}
-
-.logout {
-  transition: all 0.5s;
-}
-
-.logout:hover {
-  transform: scale(1.2);
-}
-
-.active {
-  color: #4b70e2;
-  background-color: lightgreen;
-}
-
-.user-name {
-  margin-top: 15px;
-  margin-bottom: 15px;
-  font-size: 30px;
 }
 </style>

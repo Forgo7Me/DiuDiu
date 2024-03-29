@@ -5,7 +5,7 @@
       <!--使用element-ui的el-descriptions将user除了userId的属性渲染在页面上(每个属性前需要带上一个el-icon)-->
       <el-descriptions title="我的信息" :column="1" class="margin-top" border>
         <template slot="extra">
-          <el-button type="primary">编辑</el-button>
+          <el-button type="primary" @click="openPhoneBook">电话簿</el-button>
         </template>
         <el-descriptions-item>
           <template slot="label">
@@ -107,6 +107,21 @@
         </div>
       </div>
     </el-dialog>
+
+<!--    电话簿dialog-->
+    <el-dialog width="60%;" :close-on-click-modal="false" :close-on-press-escape="false" :visible.sync="phoneBookVisible"
+               title="电话簿">
+      <el-table :data="phoneBooks"  border :row-class-name="getRowClass" style="height: 60vh;overflow-y: auto;">
+        <el-table-column prop="name" label="姓名"></el-table-column>
+        <el-table-column prop="gender" label="性别">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.gender === '男'" type="primary" size="mini">{{ scope.row.gender }}</el-tag>
+            <el-tag v-else type="danger" size="mini">{{ scope.row.gender }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="phone" label="电话"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -131,7 +146,9 @@ export default {
         notice: {},
         admin: {}
       },
+      phoneBooks: [],
       noticeVisible: false,
+      phoneBookVisible: false
     }
   },
   created() {
@@ -237,9 +254,43 @@ export default {
             }
           }
       )
-    }
+    },
+
+    // 打开电话簿
+    openPhoneBook(){
+      Api.getPhoneBook().then(res => {
+        if (res.data.code === "SUCCESS") {
+          this.phoneBooks = res.data.data;
+          this.phoneBookVisible = true;
+        } else if (res.data.code === "ERROR") {
+          Notification({
+            title: "获取电话簿失败",
+            type: "error"
+          });
+        } else if (res.data.code === "TIMEOUT") {
+          Notification({
+            title: "登录信息已过期，请重新登录",
+            type: "warning"
+          });
+          this.$router.push("/");
+        }
+      })
+    },
+
+    // 电话簿行样式
+    getRowClass({row,rowIndex}) {
+      const gender = row.gender;
+      if ( gender === "男") {
+        console.log("11111")
+        return "male"
+      }else {
+        return "female"
+      }
+    },
 
   },
+
+
 
 
 }
@@ -357,6 +408,14 @@ export default {
   100% {
     transform: translateX(-100%);
   }
+}
+
+.el-table .male {
+  background: #f0f9eb;
+}
+
+.el-table .female {
+  background: #f9ebf9;
 }
 
 </style>

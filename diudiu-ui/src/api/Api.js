@@ -34,4 +34,14 @@ export const Api = {
         updateAxiosHeader()
         return axios.post(baseURL+"/notice/admin/edit",param)
     },
+    // 用户查看电话簿
+    getPhoneBook(){
+        updateAxiosHeader()
+        return axios.get(baseURL+"/user/phoneBook")
+    },
+    // 管理员获取到数据统计集
+    getDataSort(param){
+        updateAxiosHeader(param)
+        return axios.post(baseURL+"/index/dataSort",param)
+    }
 }

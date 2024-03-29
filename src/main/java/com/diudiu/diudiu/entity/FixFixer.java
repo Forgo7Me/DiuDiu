@@ -29,6 +29,7 @@ public class FixFixer implements Serializable {
     private Integer fixerId;
 
     private Integer fixLogId;
+    private String createTime;
 
 }
 

@@ -191,8 +191,7 @@ export default {
   align-items: center;
   width: 80%;
   margin-top: 5vh;
-  margin-left: 20vh;
-  margin-right: 20vh;
+  margin-left: 10vh;
 }
 
 
@@ -219,6 +218,7 @@ export default {
 
 .chat-log-area {
   height: 80vh;
+  width: 100%;
   overflow-y: auto;
   box-shadow: 0 0 10px #ccc;
   border-radius: 10px;

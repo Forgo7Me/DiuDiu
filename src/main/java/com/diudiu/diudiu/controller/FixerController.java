@@ -12,14 +12,17 @@ import com.diudiu.diudiu.service.FixFixerService;
 import com.diudiu.diudiu.service.FixLogService;
 import com.diudiu.diudiu.service.FixerService;
 import com.diudiu.diudiu.service.UserService;
+import com.mysql.cj.util.TimeUtil;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 /*
@@ -181,6 +184,17 @@ public class FixerController {
                     fixLogMap.put("state", fixLog.getState());
                     return fixLogMap;
                 }).collect(Collectors.toList())
+        );
+    }
+
+    // 统计维修员的订单
+    @PostMapping("/echarts/1")
+    public R echarts1(@RequestBody Map<String, Object> map) {
+        Object fixerId = map.get("fixerId");
+        return R.ok(
+                fixFixerService.list(new LambdaQueryWrapper<FixFixer>().eq(FixFixer::getFixerId, fixerId))
+                        .stream()
+                        .map(FixFixer::getCreateTime)
         );
     }
 }

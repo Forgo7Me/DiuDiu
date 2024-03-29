@@ -12,9 +12,13 @@
         </el-table-column>
         <el-table-column prop="confirmUserCount" label="确认人数"></el-table-column>
         <el-table-column label="查看率">
+<!--          使用el-tag,confirmRate在50以下为danger,50~70为warning,70以上为success-->
           <template slot-scope="scope">
-            {{ (scope.row.confirmUserCount / scope.row.userCount * 100).toFixed(2) }}%
-          </template>
+            <el-tag v-if="parseFloat(scope.row.confirmRate) < 50" type="danger">{{ scope.row.confirmRate }}</el-tag>
+            <el-tag v-else-if="parseFloat(scope.row.confirmRate) >= 50 && parseFloat(scope.row.confirmRate) < 70"
+                    type="warning">{{ scope.row.confirmRate }}</el-tag>
+            <el-tag v-else type="success">{{ scope.row.confirmRate }}</el-tag>
+          </template>zx
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -122,6 +126,10 @@ export default {
       Api.getNoticeByAdmin(param).then(response => {
         if (response.data.code === "SUCCESS") {
           this.notices = response.data.data;
+          // 迭代,为notice添加收到率
+          this.notices.forEach(item => {
+            item.confirmRate = (item.confirmUserCount / item.userCount * 100).toFixed(2) + "%";
+          })
         } else if (response.data.code === "ERROR") {
           Notification({
             title: "获取公告失败",

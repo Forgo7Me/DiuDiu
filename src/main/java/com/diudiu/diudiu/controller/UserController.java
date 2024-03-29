@@ -99,7 +99,7 @@ public class UserController {
         String search = (String) map.get("search");
         User user = userService.getById(userId);
         // 若果search不为""或null，则进行模糊查询
-        if (search != null && !search.equals("")) {
+        if (search != null && !search.isEmpty()) {
             return R.ok(
                     fixLogService.list(
                             new LambdaQueryWrapper<FixLog>()
@@ -156,5 +156,39 @@ public class UserController {
             return R.error("确认完成失败");
         }
     }
+
+    // 用户获取电话簿
+    @GetMapping("/phoneBook")
+    public R phoneBook(){
+        return R.ok(
+                userService.list()
+                        .stream()
+                        .map(user -> {
+                            // 转化为map,返回name,gender,phone
+                            return Map.of(
+                                    "name", user.getName(),
+                                    "gender", user.getGender(),
+                                    "phone", user.getPhone()
+                            );
+                        })
+        );
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
